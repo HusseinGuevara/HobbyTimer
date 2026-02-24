@@ -77,6 +77,23 @@ body {
   border-radius: 16px;
 }
 
+.account-menu-wrap {
+  margin-bottom: 0.45rem;
+}
+
+.account-menu-btn {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.92);
+  color: #0f4f93;
+  font-weight: 700;
+  box-shadow: 0 8px 16px rgba(25, 65, 120, 0.16);
+}
+
+.account-menu-btn:hover {
+  background: #ffffff;
+}
+
 .section-subtitle {
   margin-top: -0.2rem;
   color: var(--pxp-muted);

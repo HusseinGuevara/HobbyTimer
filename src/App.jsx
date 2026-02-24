@@ -21,6 +21,7 @@ import {
   Card,
   Container,
   Group,
+  Menu,
   NumberInput,
   Paper,
   Progress,
@@ -207,6 +208,17 @@ export default function App() {
     () => [{ value: "__all__", label: "All Hobbies" }, ...hobbyOptions],
     [hobbyOptions]
   );
+  const accountName = useMemo(() => {
+    if (!authUser) return "Account";
+    if (typeof authUser.displayName === "string" && authUser.displayName.trim()) {
+      return authUser.displayName.trim();
+    }
+    if (typeof authUser.email === "string" && authUser.email.trim()) {
+      return authUser.email.split("@")[0];
+    }
+    return "Account";
+  }, [authUser]);
+  const accountEmail = typeof authUser?.email === "string" && authUser.email.trim() ? authUser.email : "Signed in";
 
   function buildCloudInput() {
     return {
@@ -619,6 +631,21 @@ export default function App() {
       <Container size="lg" py="xl">
         <Stack gap="md">
           <Paper radius="xl" p="lg" className="hero-panel">
+            <Group justify="flex-end" className="account-menu-wrap">
+              <Menu position="bottom-end" shadow="md" width={230}>
+                <Menu.Target>
+                  <Button variant="white" className="account-menu-btn">
+                    {accountName}
+                  </Button>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Label>{accountEmail}</Menu.Label>
+                  <Menu.Item color="red" onClick={logOutAccount}>
+                    Log Out
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            </Group>
             <img className="hero-logo" src={`${BASE_URL}progressxp-logo.png`} alt="Progress XP logo" />
           </Paper>
 
