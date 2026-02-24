@@ -1,34 +1,35 @@
-# Hobby Time Tracker (iPhone Ready)
+# Hobby Time Tracker (React + Vite)
 
-This app is set up to auto-deploy to GitHub Pages.
+This app is now built with React and deployed to GitHub Pages via GitHub Actions.
 
-## One-Time Setup
-
-1. Create a new empty GitHub repository.
-2. In this project folder, run:
+## Local Development
 
 ```bash
-git add .
-git commit -m "Initial hobby tracker app"
-git branch -M main
-git remote add origin https://github.com/<your-username>/<your-repo>.git
-git push -u origin main
+npm install
+npm run dev
 ```
 
-3. In GitHub, open your repo:
-   - Go to `Settings` -> `Pages`
-   - Under `Build and deployment`, set `Source` to `GitHub Actions`
+## Production Build
 
-## After Setup
+```bash
+npm run build
+npm run preview
+```
 
-Any push to `main` auto-deploys the app.
+## Deployment
 
-Your URL will be:
+Pushing to `main` triggers the GitHub Action in `.github/workflows/deploy-pages.yml`, which builds and publishes `dist/` to GitHub Pages.
 
-`https://<your-username>.github.io/<your-repo>/`
+Live URL:
 
-## Install on iPhone
+`https://husseinguevara.github.io/HobbyTimer/`
 
-1. Open that URL in Safari.
+## iPhone Install
+
+1. Open the live URL in Safari.
 2. Tap Share.
 3. Tap `Add to Home Screen`.
+
+## Backup
+
+Use the app's `Export Backup` and `Import Backup` buttons to move data between devices.
