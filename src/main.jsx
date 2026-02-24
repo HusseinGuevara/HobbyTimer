@@ -7,7 +7,7 @@ import "./styles.css";
 
 const theme = createTheme({
   primaryColor: "blue",
-  defaultRadius: "md",
+  defaultRadius: "lg",
   fontFamily: '"Space Grotesk", sans-serif',
   headings: {
     fontFamily: '"Space Grotesk", sans-serif',
