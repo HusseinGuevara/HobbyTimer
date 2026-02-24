@@ -77,21 +77,41 @@ body {
   border-radius: 16px;
 }
 
-.account-menu-wrap {
-  margin-bottom: 0.45rem;
+.top-nav {
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: linear-gradient(140deg, rgba(10, 132, 255, 0.9), rgba(90, 200, 250, 0.85));
+  box-shadow: 0 16px 32px rgba(31, 73, 130, 0.2);
 }
 
-.account-menu-btn {
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.92);
-  color: #0f4f93;
-  font-weight: 700;
-  box-shadow: 0 8px 16px rgba(25, 65, 120, 0.16);
+.nav-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.2);
 }
 
-.account-menu-btn:hover {
-  background: #ffffff;
+.nav-brand {
+  color: #ffffff;
+  letter-spacing: 0.01em;
+}
+
+.account-burger {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.account-burger:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.account-dropdown {
+  border: 1px solid var(--pxp-line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
 }
 
 .section-subtitle {
@@ -264,6 +284,15 @@ body {
 @media (max-width: 720px) {
   .hero-logo {
     width: min(220px, 94%);
+  }
+
+  .nav-logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .nav-brand {
+    font-size: 0.96rem;
   }
 
   .chart-wrap {

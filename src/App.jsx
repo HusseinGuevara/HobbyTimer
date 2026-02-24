@@ -17,6 +17,7 @@ import {
 import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import {
   Badge,
+  Burger,
   Button,
   Card,
   Container,
@@ -77,6 +78,7 @@ export default function App() {
   const [authStatus, setAuthStatus] = useState("");
   const [authUser, setAuthUser] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const importBackupRef = useRef(null);
   const reminderTickRef = useRef(null);
 
@@ -716,23 +718,46 @@ export default function App() {
     <div className="app-bg">
       <Container size="lg" py="xl">
         <Stack gap="md">
-          <Paper radius="xl" p="lg" className="hero-panel">
-            <Group justify="flex-end" className="account-menu-wrap">
-              <Menu position="bottom-end" shadow="md" width={230}>
+          <Paper radius="xl" p="sm" className="top-nav">
+            <Group justify="space-between" align="center" wrap="nowrap">
+              <Group gap="sm" wrap="nowrap">
+                <img className="nav-logo" src={`${BASE_URL}progressxp-logo.png`} alt="Progress XP logo" />
+                <Text fw={700} className="nav-brand">Progress XP</Text>
+              </Group>
+              <Menu
+                opened={accountMenuOpen}
+                onChange={setAccountMenuOpen}
+                position="bottom-end"
+                shadow="md"
+                width={250}
+                transitionProps={{ transition: "pop-top-right", duration: 180 }}
+              >
                 <Menu.Target>
-                  <Button variant="white" className="account-menu-btn">
-                    {accountName}
-                  </Button>
+                  <div>
+                    <Burger
+                      opened={accountMenuOpen}
+                      onClick={() => setAccountMenuOpen((open) => !open)}
+                      aria-label="Open account menu"
+                      className="account-burger"
+                    />
+                  </div>
                 </Menu.Target>
-                <Menu.Dropdown>
-                  <Menu.Label>{accountEmail}</Menu.Label>
-                  <Menu.Item color="red" onClick={logOutAccount}>
+                <Menu.Dropdown className="account-dropdown">
+                  <Menu.Label>{accountName}</Menu.Label>
+                  <Menu.Item disabled>{accountEmail}</Menu.Item>
+                  <Menu.Divider />
+                  <Menu.Item
+                    color="red"
+                    onClick={() => {
+                      setAccountMenuOpen(false);
+                      logOutAccount();
+                    }}
+                  >
                     Log Out
                   </Menu.Item>
                 </Menu.Dropdown>
               </Menu>
             </Group>
-            <img className="hero-logo" src={`${BASE_URL}progressxp-logo.png`} alt="Progress XP logo" />
           </Paper>
 
           <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
