@@ -44,3 +44,19 @@ The app supports optional cross-device cloud sync using Firebase Firestore.
 4. Copy web app config values (`apiKey`, `authDomain`, `projectId`, `appId`) into the app's Cloud Sync section.
 5. Set the same `Sync ID` on each device.
 6. Use `Sync Up` and `Sync Down`.
+
+Recommended Firestore rules (owner-locked sync docs):
+
+```txt
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /hobby_timer_sync/{syncId} {
+      allow create: if request.auth != null
+        && request.resource.data.ownerUid == request.auth.uid;
+      allow read, update, delete: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid;
+    }
+  }
+}
+```

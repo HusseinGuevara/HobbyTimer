@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { initializeApp } from "firebase/app";
+import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 
@@ -326,12 +326,13 @@ export default function App() {
       };
 
       assertCloudConfig(cloud);
-      const db = await getCloudDb(cloud.firebase);
+      const { db, uid } = await getCloudDb(cloud.firebase);
       await setDoc(doc(db, "hobby_timer_sync", cloud.syncId), {
         updatedAt: Date.now(),
+        ownerUid: uid,
         data: state,
       });
-      setCloudStatus("Synced to cloud.");
+      setCloudStatus("Synced to cloud (owner bound).");
     } catch (error) {
       setCloudStatus(`Cloud sync failed: ${getMessage(error)}`);
     }
@@ -351,7 +352,7 @@ export default function App() {
       };
 
       assertCloudConfig(cloud);
-      const db = await getCloudDb(cloud.firebase);
+      const { db, uid } = await getCloudDb(cloud.firebase);
       const snapshot = await getDoc(doc(db, "hobby_timer_sync", cloud.syncId));
 
       if (!snapshot.exists()) {
@@ -359,7 +360,13 @@ export default function App() {
         return;
       }
 
-      const remote = snapshot.data().data;
+      const payload = snapshot.data();
+      if (payload.ownerUid && payload.ownerUid !== uid) {
+        setCloudStatus("This Sync ID belongs to a different account.");
+        return;
+      }
+
+      const remote = payload.data;
       const normalized = prepareState(remote);
       const confirmReplace = window.confirm(
         "Download cloud data and replace local data on this device?"
@@ -912,10 +919,13 @@ function maybeTriggerReminder(reminderTime) {
 }
 
 async function getCloudDb(firebaseConfig) {
-  const app = initializeApp(firebaseConfig, `hobby-tracker-${firebaseConfig.projectId}`);
+  const appName = `hobby-tracker-${firebaseConfig.projectId}`;
+  const app = getApps().some((item) => item.name === appName)
+    ? getApp(appName)
+    : initializeApp(firebaseConfig, appName);
   const auth = getAuth(app);
-  await signInAnonymously(auth);
-  return getFirestore(app);
+  const credential = await signInAnonymously(auth);
+  return { db: getFirestore(app), uid: credential.user.uid };
 }
 
 function assertCloudConfig(cloud) {
