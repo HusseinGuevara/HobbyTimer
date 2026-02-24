@@ -650,9 +650,9 @@ export default function App() {
       <div className="app-bg">
         <Container size="sm" py="xl">
           <Stack gap="md">
-            <Paper radius="xl" p="lg" className="hero-panel">
+            <div className="login-logo-wrap">
               <img className="hero-logo" src={`${BASE_URL}progressxp-logo.png`} alt="Progress XP logo" />
-            </Paper>
+            </div>
 
             <Card radius="xl" shadow="sm" withBorder className="glass-card cloud-card">
               <Stack gap="sm">
