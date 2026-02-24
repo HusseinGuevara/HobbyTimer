@@ -778,10 +778,11 @@ export default function App() {
                     setState((prev) => ({ ...prev, selectedHobby: value }));
                   }}
                 />
-                <Group grow>
+                <Group>
                   <TextInput
                     placeholder="Add a new hobby"
                     value={newHobby}
+                    style={{ flex: 1 }}
                     disabled={Boolean(activeSession)}
                     onChange={(event) => setNewHobby(event.currentTarget.value)}
                     onKeyDown={(event) => {
@@ -791,6 +792,8 @@ export default function App() {
                       }
                     }}
                   />
+                </Group>
+                <Group>
                   <Button variant="light" onClick={addHobby} disabled={Boolean(activeSession)}>
                     Add
                   </Button>
