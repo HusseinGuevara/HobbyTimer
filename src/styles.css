@@ -78,33 +78,27 @@ body {
 }
 
 .top-nav {
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  width: 100%;
+  border: 0;
   background: linear-gradient(140deg, rgba(10, 132, 255, 0.9), rgba(90, 200, 250, 0.85));
-  box-shadow: 0 16px 32px rgba(31, 73, 130, 0.2);
+  box-shadow: 0 12px 26px rgba(31, 73, 130, 0.2);
+}
+
+.top-nav-inner {
+  width: min(1120px, calc(100% - 24px));
+  margin: 0 auto;
 }
 
 .nav-logo {
-  width: 48px;
-  height: 48px;
+  width: 54px;
+  height: 54px;
   object-fit: cover;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.nav-brand {
-  color: #ffffff;
-  letter-spacing: 0.01em;
+  border-radius: 0;
 }
 
 .account-burger {
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  background: rgba(255, 255, 255, 0.16);
-}
-
-.account-burger:hover {
-  background: rgba(255, 255, 255, 0.24);
+  background: transparent;
+  border: 0;
 }
 
 .account-dropdown {
@@ -287,12 +281,8 @@ body {
   }
 
   .nav-logo {
-    width: 42px;
-    height: 42px;
-  }
-
-  .nav-brand {
-    font-size: 0.96rem;
+    width: 46px;
+    height: 46px;
   }
 
   .chart-wrap {

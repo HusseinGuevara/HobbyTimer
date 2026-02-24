@@ -716,49 +716,50 @@ export default function App() {
 
   return (
     <div className="app-bg">
+      <Paper p="sm" className="top-nav" radius={0}>
+        <div className="top-nav-inner">
+          <Group justify="space-between" align="center" wrap="nowrap">
+            <img className="nav-logo" src={`${BASE_URL}progressxp-logo.png`} alt="Progress XP logo" />
+            <Menu
+              opened={accountMenuOpen}
+              onChange={setAccountMenuOpen}
+              position="bottom-end"
+              shadow="md"
+              width={250}
+              transitionProps={{ transition: "pop-top-right", duration: 180 }}
+            >
+              <Menu.Target>
+                <div>
+                  <Burger
+                    opened={accountMenuOpen}
+                    onClick={() => setAccountMenuOpen((open) => !open)}
+                    aria-label="Open account menu"
+                    className="account-burger"
+                    color="#ffffff"
+                  />
+                </div>
+              </Menu.Target>
+              <Menu.Dropdown className="account-dropdown">
+                <Menu.Label>{accountName}</Menu.Label>
+                <Menu.Item disabled>{accountEmail}</Menu.Item>
+                <Menu.Divider />
+                <Menu.Item
+                  color="red"
+                  onClick={() => {
+                    setAccountMenuOpen(false);
+                    logOutAccount();
+                  }}
+                >
+                  Log Out
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
+        </div>
+      </Paper>
+
       <Container size="lg" py="xl">
         <Stack gap="md">
-          <Paper radius="xl" p="sm" className="top-nav">
-            <Group justify="space-between" align="center" wrap="nowrap">
-              <Group gap="sm" wrap="nowrap">
-                <img className="nav-logo" src={`${BASE_URL}progressxp-logo.png`} alt="Progress XP logo" />
-                <Text fw={700} className="nav-brand">Progress XP</Text>
-              </Group>
-              <Menu
-                opened={accountMenuOpen}
-                onChange={setAccountMenuOpen}
-                position="bottom-end"
-                shadow="md"
-                width={250}
-                transitionProps={{ transition: "pop-top-right", duration: 180 }}
-              >
-                <Menu.Target>
-                  <div>
-                    <Burger
-                      opened={accountMenuOpen}
-                      onClick={() => setAccountMenuOpen((open) => !open)}
-                      aria-label="Open account menu"
-                      className="account-burger"
-                    />
-                  </div>
-                </Menu.Target>
-                <Menu.Dropdown className="account-dropdown">
-                  <Menu.Label>{accountName}</Menu.Label>
-                  <Menu.Item disabled>{accountEmail}</Menu.Item>
-                  <Menu.Divider />
-                  <Menu.Item
-                    color="red"
-                    onClick={() => {
-                      setAccountMenuOpen(false);
-                      logOutAccount();
-                    }}
-                  >
-                    Log Out
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
-            </Group>
-          </Paper>
 
           <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
             <Card radius="xl" shadow="sm" withBorder className="glass-card session-card">
