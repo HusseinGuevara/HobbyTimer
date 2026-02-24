@@ -98,11 +98,18 @@ export default function App() {
     }
 
     const update = () => {
-      const elapsed = Math.floor((Date.now() - activeSession.startedAt) / 1000);
+      if (activeSession.pausedAt) {
+        setSessionSeconds(Math.max(0, activeSession.accumulatedSeconds));
+        return;
+      }
+
+      const elapsed = activeSession.accumulatedSeconds + Math.floor((Date.now() - activeSession.runStartedAt) / 1000);
       setSessionSeconds(Math.max(0, elapsed));
     };
 
     update();
+    if (activeSession.pausedAt) return;
+
     const id = setInterval(update, 1000);
     return () => clearInterval(id);
   }, [activeSession]);
@@ -290,15 +297,53 @@ export default function App() {
 
   function startSession() {
     if (activeSession || !state.selectedHobby) return;
-    setActiveSession({ hobby: state.selectedHobby, startedAt: Date.now() });
+    const now = Date.now();
+    setActiveSession({
+      hobby: state.selectedHobby,
+      sessionStartedAt: now,
+      runStartedAt: now,
+      accumulatedSeconds: 0,
+      pausedAt: null,
+    });
     setBackupStatus("");
+  }
+
+  function pauseSession() {
+    if (!activeSession || activeSession.pausedAt) return;
+
+    const now = Date.now();
+    const elapsed = activeSession.accumulatedSeconds + Math.floor((now - activeSession.runStartedAt) / 1000);
+
+    setActiveSession((prev) => {
+      if (!prev || prev.pausedAt) return prev;
+      return {
+        ...prev,
+        accumulatedSeconds: Math.max(0, elapsed),
+        pausedAt: now,
+      };
+    });
+  }
+
+  function resumeSession() {
+    if (!activeSession || !activeSession.pausedAt) return;
+
+    setActiveSession((prev) => {
+      if (!prev || !prev.pausedAt) return prev;
+      return {
+        ...prev,
+        runStartedAt: Date.now(),
+        pausedAt: null,
+      };
+    });
   }
 
   function stopSession() {
     if (!activeSession) return;
 
     const endedAt = Date.now();
-    const duration = Math.max(0, Math.floor((endedAt - activeSession.startedAt) / 1000));
+    const duration = activeSession.pausedAt
+      ? Math.max(0, activeSession.accumulatedSeconds)
+      : Math.max(0, activeSession.accumulatedSeconds + Math.floor((endedAt - activeSession.runStartedAt) / 1000));
     const hobby = activeSession.hobby;
 
     setState((prev) => ({
@@ -307,7 +352,7 @@ export default function App() {
         ...prev.totals,
         [hobby]: (prev.totals[hobby] || 0) + duration,
       },
-      sessions: [{ hobby, startedAt: activeSession.startedAt, endedAt, duration }, ...prev.sessions].slice(
+      sessions: [{ hobby, startedAt: activeSession.sessionStartedAt, endedAt, duration }, ...prev.sessions].slice(
         0,
         MAX_SESSIONS
       ),
@@ -739,10 +784,23 @@ export default function App() {
                   <Title order={2} className="timer-text">
                     {formatDuration(sessionSeconds)}
                   </Title>
+                  {activeSession?.pausedAt ? (
+                    <Text size="sm" c="orange" fw={700}>
+                      Paused
+                    </Text>
+                  ) : null}
                 </Paper>
                 <Group grow>
                   <Button onClick={startSession} disabled={Boolean(activeSession)}>
                     Start
+                  </Button>
+                  <Button
+                    color={activeSession?.pausedAt ? "teal" : "yellow"}
+                    variant="light"
+                    onClick={activeSession?.pausedAt ? resumeSession : pauseSession}
+                    disabled={!activeSession}
+                  >
+                    {activeSession?.pausedAt ? "Resume" : "Pause"}
                   </Button>
                   <Button color="red" onClick={stopSession} disabled={!activeSession}>
                     Stop
