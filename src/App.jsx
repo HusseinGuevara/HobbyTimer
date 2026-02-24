@@ -247,6 +247,47 @@ export default function App() {
     setNewHobby("");
   }
 
+  function deleteSelectedHobby() {
+    const hobby = state.selectedHobby;
+    if (!hobby) return;
+
+    if (activeSession) {
+      window.alert("Stop the current timer before deleting a hobby.");
+      return;
+    }
+
+    if (state.hobbies.length <= 1) {
+      window.alert("Add another hobby first. You need at least one hobby.");
+      return;
+    }
+
+    const sessionCount = state.sessions.filter((session) => session.hobby === hobby).length;
+    const trackedSeconds = state.totals[hobby] || 0;
+    const warning = `Delete "${hobby}"?\n\nThis will remove ${sessionCount} session(s) and ${formatDuration(
+      trackedSeconds
+    )} of tracked time for this hobby.`;
+    const confirmed = window.confirm(warning);
+    if (!confirmed) return;
+
+    setState((prev) => {
+      const nextHobbies = prev.hobbies.filter((item) => item !== hobby);
+      const nextTotals = { ...prev.totals };
+      delete nextTotals[hobby];
+
+      return {
+        ...prev,
+        hobbies: nextHobbies,
+        selectedHobby: nextHobbies.includes(prev.selectedHobby) ? prev.selectedHobby : nextHobbies[0] || "",
+        totals: nextTotals,
+        sessions: prev.sessions.filter((session) => session.hobby !== hobby),
+      };
+    });
+
+    if (chartHobby === hobby) {
+      setChartHobby("__all__");
+    }
+  }
+
   function startSession() {
     if (activeSession || !state.selectedHobby) return;
     setActiveSession({ hobby: state.selectedHobby, startedAt: Date.now() });
@@ -681,6 +722,14 @@ export default function App() {
                   />
                   <Button variant="light" onClick={addHobby} disabled={Boolean(activeSession)}>
                     Add
+                  </Button>
+                  <Button
+                    color="red"
+                    variant="light"
+                    onClick={deleteSelectedHobby}
+                    disabled={Boolean(activeSession) || state.hobbies.length <= 1}
+                  >
+                    Delete Hobby
                   </Button>
                 </Group>
                 <Paper p="md" radius="md" className="timer-surface">
