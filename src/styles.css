@@ -187,6 +187,7 @@ body {
 .mantine-TextInput-input,
 .mantine-NumberInput-input,
 .mantine-Select-input {
+  font-size: 16px;
   border-radius: 12px;
   border-color: rgba(122, 143, 173, 0.35);
   background: rgba(255, 255, 255, 0.95);
