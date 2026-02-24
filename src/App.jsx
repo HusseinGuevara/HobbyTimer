@@ -575,7 +575,7 @@ export default function App() {
                     onChange={(e) => setAuthPasswordInput(e.currentTarget.value)}
                   />
                 </SimpleGrid>
-                <Group>
+                <Group className="social-auth-row">
                   <Button
                     className="auth-provider-btn google-btn"
                     variant="light"
@@ -839,12 +839,12 @@ export default function App() {
                       onChange={(e) => setAuthPasswordInput(e.currentTarget.value)}
                     />
                   </SimpleGrid>
-                  <Group>
-                    <Button
-                      className="auth-provider-btn google-btn"
-                      variant="light"
-                      leftSection={<GoogleLogoIcon />}
-                      onClick={() => signInWithProvider("google")}
+                    <Group className="social-auth-row">
+                      <Button
+                        className="auth-provider-btn google-btn"
+                        variant="light"
+                        leftSection={<GoogleLogoIcon />}
+                        onClick={() => signInWithProvider("google")}
                     >
                       Google
                     </Button>

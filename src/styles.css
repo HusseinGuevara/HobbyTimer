@@ -221,6 +221,11 @@ body {
   margin-right: 8px;
 }
 
+.social-auth-row {
+  justify-content: center;
+  width: 100%;
+}
+
 .mantine-SegmentedControl-root {
   border-radius: 12px;
   background: rgba(15, 31, 54, 0.08);
@@ -248,5 +253,10 @@ body {
     min-height: 220px;
     grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
     padding: 0.72rem;
+  }
+
+  .social-auth-row .auth-provider-btn {
+    width: 100%;
+    max-width: 320px;
   }
 }
