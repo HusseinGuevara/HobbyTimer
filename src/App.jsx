@@ -386,6 +386,7 @@ export default function App() {
   return (
     <main className="app">
       <section className="card hero">
+        <img className="hero-logo" src={`${import.meta.env.BASE_URL}progressxp-logo.png`} alt="Progress XP logo" />
         <h1>Progress XP</h1>
         <p>Track your time, hit your goals, keep your streak, and sync across devices.</p>
       </section>
