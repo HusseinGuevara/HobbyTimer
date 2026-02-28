@@ -645,6 +645,12 @@ export default function App() {
         return;
       }
 
+      const passwordError = validatePassword(authPasswordInput);
+      if (passwordError) {
+        setAuthStatus(`Sign up failed: ${passwordError}`);
+        return;
+      }
+
       const cloud = buildCloudInput();
       assertFirebaseConfig(cloud.firebase);
 
@@ -1259,6 +1265,26 @@ function getMessage(error) {
   }
 
   return error && typeof error.message === "string" ? error.message : "Unknown error";
+}
+
+function validatePassword(password) {
+  if (typeof password !== "string" || password.length < 8) {
+    return "Password must be at least 8 characters.";
+  }
+
+  if (!/[a-z]/.test(password)) {
+    return "Password must include a lowercase letter.";
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    return "Password must include an uppercase letter.";
+  }
+
+  if (!/\d/.test(password)) {
+    return "Password must include a number.";
+  }
+
+  return "";
 }
 
 function startOfDay(date) {

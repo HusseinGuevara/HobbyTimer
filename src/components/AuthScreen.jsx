@@ -45,11 +45,16 @@ export default function AuthScreen({
                 <TextInput
                   type="password"
                   label="Password"
-                  placeholder="At least 6 characters"
+                  placeholder={isLogin ? "Enter your password" : "8+ chars, upper/lowercase, number"}
                   value={authPasswordInput}
                   onChange={(event) => onPasswordChange(event.currentTarget.value)}
                 />
               </SimpleGrid>
+              {!isLogin ? (
+                <Text size="sm" c="dimmed">
+                  Password must be at least 8 characters and include an uppercase letter, lowercase letter, and number.
+                </Text>
+              ) : null}
               <Group className="social-auth-row">
                 <Button
                   className="auth-provider-btn google-btn"
