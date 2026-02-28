@@ -14,7 +14,7 @@ import {
   signInWithRedirect,
   signOut,
 } from "firebase/auth";
-import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
+import { doc, getDoc, getFirestore, onSnapshot, setDoc } from "firebase/firestore";
 import { Container, SimpleGrid, Stack } from "@mantine/core";
 import AuthScreen from "./components/AuthScreen";
 import ChartsCard from "./components/ChartsCard";
@@ -30,6 +30,7 @@ const AUTH_ACTIVITY_KEY = "progressxp-auth-last-active-at";
 const AUTH_MAX_IDLE_MS = 1000 * 60 * 60 * 24 * 30;
 const MAX_SESSIONS = 25;
 const BASE_URL = import.meta.env.BASE_URL || "/";
+const USER_SYNC_COLLECTION = "progress_xp_users";
 const DEFAULT_FIREBASE_CONFIG = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
@@ -68,8 +69,15 @@ export default function App() {
   const [authUser, setAuthUser] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [syncReady, setSyncReady] = useState(false);
   const importBackupRef = useRef(null);
   const reminderTickRef = useRef(null);
+  const stateRef = useRef(state);
+  const applyingRemoteSyncRef = useRef(0);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -134,6 +142,7 @@ export default function App() {
     if (!isCompleteFirebaseConfig(firebase)) {
       setAuthUser(null);
       setAuthChecked(true);
+      setSyncReady(false);
       return;
     }
 
@@ -145,6 +154,7 @@ export default function App() {
       if (!user) {
         setAuthUser(null);
         setAuthChecked(true);
+        setSyncReady(false);
         return;
       }
 
@@ -158,6 +168,7 @@ export default function App() {
         setAuthUser(null);
         setAuthStatus("Session expired. Please log in again.");
         setAuthChecked(true);
+        setSyncReady(false);
         return;
       }
 
@@ -168,6 +179,88 @@ export default function App() {
 
     return () => unsubscribe();
   }, [state.settings.cloud.firebase]);
+
+  useEffect(() => {
+    if (!authUser) {
+      setSyncReady(false);
+      return;
+    }
+
+    const firebase = getResolvedFirebaseConfig(state.settings.cloud.firebase);
+    if (!isCompleteFirebaseConfig(firebase)) {
+      setSyncReady(false);
+      return;
+    }
+
+    const app = getFirebaseApp(firebase);
+    const db = getFirestore(app);
+    const userDoc = doc(db, USER_SYNC_COLLECTION, authUser.uid);
+    setSyncReady(false);
+
+    const unsubscribe = onSnapshot(
+      userDoc,
+      async (snapshot) => {
+        const localState = stateRef.current;
+        const localUpdatedAt = getStateLastUpdatedAt(localState);
+
+        if (!snapshot.exists()) {
+          const initialState = localUpdatedAt > 0 ? localState : withUpdatedMeta(localState);
+          if (getStateLastUpdatedAt(initialState) !== localUpdatedAt) {
+            applyingRemoteSyncRef.current = getStateLastUpdatedAt(initialState);
+            setState(initialState);
+          }
+
+          await persistUserState(userDoc, initialState, authUser.uid);
+          setSyncReady(true);
+          return;
+        }
+
+        const payload = snapshot.data();
+        const remoteState = prepareState(payload?.data);
+        const remoteUpdatedAt = getStateLastUpdatedAt(remoteState);
+
+        if (remoteUpdatedAt > localUpdatedAt) {
+          applyingRemoteSyncRef.current = remoteUpdatedAt;
+          setState(remoteState);
+        } else if (localUpdatedAt > remoteUpdatedAt) {
+          await persistUserState(userDoc, localState, authUser.uid);
+        }
+
+        setSyncReady(true);
+      },
+      () => {
+        setSyncReady(false);
+      }
+    );
+
+    return () => {
+      setSyncReady(false);
+      unsubscribe();
+    };
+  }, [authUser, state.settings.cloud.firebase]);
+
+  useEffect(() => {
+    if (!authUser || !syncReady) return;
+
+    const stateUpdatedAt = getStateLastUpdatedAt(state);
+    if (!stateUpdatedAt) return;
+
+    if (applyingRemoteSyncRef.current === stateUpdatedAt) {
+      applyingRemoteSyncRef.current = 0;
+      return;
+    }
+
+    const firebase = getResolvedFirebaseConfig(state.settings.cloud.firebase);
+    if (!isCompleteFirebaseConfig(firebase)) return;
+
+    const app = getFirebaseApp(firebase);
+    const db = getFirestore(app);
+    const userDoc = doc(db, USER_SYNC_COLLECTION, authUser.uid);
+
+    persistUserState(userDoc, state, authUser.uid).catch(() => {
+      // Keep local state intact if cloud sync fails.
+    });
+  }, [authUser, state, syncReady, state.settings.cloud.firebase]);
 
   const totals = useMemo(() => {
     return Object.entries(state.totals).sort((a, b) => b[1] - a[1]);
@@ -218,6 +311,10 @@ export default function App() {
   }, [authUser]);
   const accountEmail = typeof authUser?.email === "string" && authUser.email.trim() ? authUser.email : "Signed in";
 
+  function updateTrackedState(updater) {
+    setState((prev) => withUpdatedMeta(typeof updater === "function" ? updater(prev) : updater));
+  }
+
   function buildCloudInput() {
     return {
       ...state.settings.cloud,
@@ -236,7 +333,7 @@ export default function App() {
       return;
     }
 
-    setState((prev) => ({
+    updateTrackedState((prev) => ({
       ...prev,
       hobbies: [...prev.hobbies, hobby],
       selectedHobby: hobby,
@@ -267,7 +364,7 @@ export default function App() {
     const confirmed = window.confirm(warning);
     if (!confirmed) return;
 
-    setState((prev) => {
+    updateTrackedState((prev) => {
       const nextHobbies = prev.hobbies.filter((item) => item !== hobby);
       const nextTotals = { ...prev.totals };
       delete nextTotals[hobby];
@@ -337,7 +434,7 @@ export default function App() {
       : Math.max(0, activeSession.accumulatedSeconds + Math.floor((endedAt - activeSession.runStartedAt) / 1000));
     const hobby = activeSession.hobby;
 
-    setState((prev) => ({
+    updateTrackedState((prev) => ({
       ...prev,
       totals: {
         ...prev.totals,
@@ -408,7 +505,7 @@ export default function App() {
         return;
       }
 
-      setState(prepareState(normalized));
+      updateTrackedState(prepareState(normalized));
       setBackupStatus("Backup imported successfully.");
     } catch {
       setBackupStatus("Import failed. Please choose a valid backup JSON file.");
@@ -419,7 +516,7 @@ export default function App() {
     const daily = clampInt(dailyGoalInput, 1, 1440, state.settings.dailyGoalMinutes);
     const weekly = clampInt(weeklyGoalInput, 1, 10080, state.settings.weeklyGoalMinutes);
 
-    setState((prev) => ({
+    updateTrackedState((prev) => ({
       ...prev,
       settings: {
         ...prev.settings,
@@ -444,7 +541,7 @@ export default function App() {
       }
     }
 
-    setState((prev) => ({
+    updateTrackedState((prev) => ({
       ...prev,
       settings: {
         ...prev.settings,
@@ -461,7 +558,7 @@ export default function App() {
       return;
     }
 
-    setState((prev) => ({
+    updateTrackedState((prev) => ({
       ...prev,
       settings: {
         ...prev.settings,
@@ -676,7 +773,7 @@ export default function App() {
               hobbyCount={state.hobbies.length}
               onSelectHobby={(value) => {
                 if (!value) return;
-                setState((prev) => ({ ...prev, selectedHobby: value }));
+                updateTrackedState((prev) => ({ ...prev, selectedHobby: value }));
               }}
               onNewHobbyChange={setNewHobby}
               onNewHobbyKeyDown={(event) => {
@@ -801,6 +898,7 @@ function prepareState(input) {
       : hobbyList[0];
 
   const settings = mergeSettings(source.settings);
+  const lastUpdatedAt = Number(source.meta?.lastUpdatedAt);
 
   return {
     hobbies: hobbyList,
@@ -808,11 +906,43 @@ function prepareState(input) {
     totals,
     sessions,
     settings,
+    meta: {
+      lastUpdatedAt: Number.isFinite(lastUpdatedAt) ? lastUpdatedAt : 0,
+    },
   };
 }
 
 function normalizeBackupData(input) {
   return prepareState(input);
+}
+
+function withUpdatedMeta(input, timestamp = Date.now()) {
+  const prepared = prepareState(input);
+  return {
+    ...prepared,
+    meta: {
+      ...prepared.meta,
+      lastUpdatedAt: timestamp,
+    },
+  };
+}
+
+function getStateLastUpdatedAt(input) {
+  const value = Number(input?.meta?.lastUpdatedAt);
+  return Number.isFinite(value) ? value : 0;
+}
+
+async function persistUserState(userDoc, state, uid) {
+  const payload = getStateLastUpdatedAt(state) > 0 ? state : withUpdatedMeta(state);
+  await setDoc(
+    userDoc,
+    {
+      ownerUid: uid,
+      updatedAt: getStateLastUpdatedAt(payload),
+      data: payload,
+    },
+    { merge: true }
+  );
 }
 
 function mergeSettings(input) {

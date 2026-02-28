@@ -62,16 +62,18 @@ If Google/Apple login fails on phone, verify:
 2. Firebase Authentication providers are enabled (`Google`, `Apple` if used).
 3. Firebase Auth authorized domains include `husseinguevara.github.io`.
 
-Recommended Firestore rules (owner-locked sync docs):
+Recommended Firestore rules (automatic per-user sync):
 
 ```txt
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /hobby_timer_sync/{syncId} {
+    match /progress_xp_users/{userId} {
       allow create: if request.auth != null
+        && request.auth.uid == userId
         && request.resource.data.ownerUid == request.auth.uid;
       allow read, update, delete: if request.auth != null
+        && request.auth.uid == userId
         && resource.data.ownerUid == request.auth.uid;
     }
   }
