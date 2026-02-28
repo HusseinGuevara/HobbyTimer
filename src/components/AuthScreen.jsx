@@ -68,11 +68,11 @@ export default function AuthScreen({
                   Continue with Apple
                 </Button>
               </Group>
-              <Group>
+              <Group className="social-auth-row">
                 {isLogin ? (
-                  <Button onClick={onLogIn}>Log In</Button>
+                  <Button className="auth-provider-btn" onClick={onLogIn}>Log In</Button>
                 ) : (
-                  <Button onClick={onSignUp}>Create Account</Button>
+                  <Button className="auth-provider-btn" onClick={onSignUp}>Create Account</Button>
                 )}
               </Group>
               <Text size="sm" c="dimmed">
