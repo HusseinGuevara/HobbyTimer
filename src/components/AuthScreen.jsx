@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Card, Container, Group, SimpleGrid, Stack, Text, TextInput, Title } from "@mantine/core";
 import { AppleLogoIcon, GoogleLogoIcon } from "./icons";
 
@@ -16,6 +16,9 @@ export default function AuthScreen({
   onSignUp,
   onLogIn,
 }) {
+  const [mode, setMode] = useState("login");
+  const isLogin = mode === "login";
+
   return (
     <div className="app-bg">
       <Container size="sm" py="xl">
@@ -26,9 +29,11 @@ export default function AuthScreen({
 
           <Card radius="xl" shadow="sm" withBorder className="glass-card cloud-card">
             <Stack gap="sm">
-              <Title order={3}>Create Account</Title>
+              <Title order={3}>{isLogin ? "Log In" : "Create Account"}</Title>
               <Text c="dimmed" size="sm">
-                Sign up once to unlock Progress XP and stay logged in across sessions.
+                {isLogin
+                  ? "Log in to sync your Progress XP data across devices."
+                  : "Create an account to unlock Progress XP and stay logged in across sessions."}
               </Text>
               <SimpleGrid cols={{ base: 1, md: 2 }}>
                 <TextInput
@@ -64,9 +69,22 @@ export default function AuthScreen({
                 </Button>
               </Group>
               <Group>
-                <Button variant="light" onClick={onSignUp}>Sign Up</Button>
-                <Button onClick={onLogIn}>Log In</Button>
+                {isLogin ? (
+                  <Button onClick={onLogIn}>Log In</Button>
+                ) : (
+                  <Button onClick={onSignUp}>Create Account</Button>
+                )}
               </Group>
+              <Text size="sm" c="dimmed">
+                {isLogin ? "Need an account?" : "Already have an account?"}{" "}
+                <button
+                  type="button"
+                  className="auth-switch-link"
+                  onClick={() => setMode(isLogin ? "signup" : "login")}
+                >
+                  {isLogin ? "Create one" : "Go back to login"}
+                </button>
+              </Text>
               {!hasFirebaseConfigured ? (
                 <Text size="sm" c="dimmed">
                   Login is not available yet. Firebase sign-in providers must be enabled.

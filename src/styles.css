@@ -198,6 +198,17 @@ body {
   font-weight: 500;
 }
 
+.auth-switch-link {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #0a66c2;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .mantine-Button-root {
   border-radius: 12px;
 }
