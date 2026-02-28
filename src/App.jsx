@@ -1232,6 +1232,32 @@ function createAuthProvider(providerId) {
 }
 
 function getMessage(error) {
+  const code = typeof error?.code === "string" ? error.code : "";
+
+  if (code === "auth/email-already-in-use") {
+    return "Email is already in use.";
+  }
+
+  if (code === "auth/invalid-credential") {
+    return "Email or password is incorrect.";
+  }
+
+  if (code === "auth/user-not-found") {
+    return "No account was found for that email.";
+  }
+
+  if (code === "auth/wrong-password") {
+    return "Email or password is incorrect.";
+  }
+
+  if (code === "auth/too-many-requests") {
+    return "Too many attempts. Please try again in a little while.";
+  }
+
+  if (code === "auth/operation-not-allowed") {
+    return "This sign-in method is not enabled yet.";
+  }
+
   return error && typeof error.message === "string" ? error.message : "Unknown error";
 }
 
