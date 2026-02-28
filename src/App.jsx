@@ -25,7 +25,7 @@ import SessionsCard from "./components/SessionsCard";
 import TopNav from "./components/TopNav";
 import TotalsCard from "./components/TotalsCard";
 
-const STORAGE_KEY = "hobby-time-tracker-v1";
+const STORAGE_KEY_PREFIX = "hobby-time-tracker-v1";
 const AUTH_ACTIVITY_KEY = "progressxp-auth-last-active-at";
 const AUTH_MAX_IDLE_MS = 1000 * 60 * 60 * 24 * 30;
 const MAX_SESSIONS = 25;
@@ -80,8 +80,9 @@ export default function App() {
   }, [state]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
+    if (!authUser?.uid) return;
+    localStorage.setItem(getStorageKey(authUser.uid), JSON.stringify(state));
+  }, [authUser, state]);
 
   useEffect(() => {
     setDailyGoalInput(String(state.settings.dailyGoalMinutes));
@@ -179,6 +180,17 @@ export default function App() {
 
     return () => unsubscribe();
   }, [state.settings.cloud.firebase]);
+
+  useEffect(() => {
+    applyingRemoteSyncRef.current = 0;
+
+    if (!authUser?.uid) {
+      setState(prepareState(loadState()));
+      return;
+    }
+
+    setState(prepareState(loadState(authUser.uid)));
+  }, [authUser?.uid]);
 
   useEffect(() => {
     if (!authUser) {
@@ -838,9 +850,13 @@ export default function App() {
   );
 }
 
-function loadState() {
+function getStorageKey(uid) {
+  return uid ? `${STORAGE_KEY_PREFIX}:${uid}` : `${STORAGE_KEY_PREFIX}:guest`;
+}
+
+function loadState(uid) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(getStorageKey(uid));
     if (!raw) return { hobbies: [], selectedHobby: "", totals: {}, sessions: [], settings: DEFAULT_SETTINGS };
     return JSON.parse(raw);
   } catch {
