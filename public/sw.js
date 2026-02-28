@@ -1,13 +1,11 @@
-const CACHE_NAME = "hobby-time-tracker-cache-v3";
+const CACHE_NAME = "hobby-time-tracker-cache-v4";
 const APP_SHELL = [
   "./",
   "./manifest.webmanifest",
   "./icon-180.png",
   "./icon-192.png",
   "./icon-512.png",
-  "./progressxp-logo.png",
-  "./assets/app.js",
-  "./assets/app.css"
+  "./progressxp-logo.png"
 ];
 
 self.addEventListener("install", (event) => {
@@ -48,16 +46,14 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-
-      return fetch(event.request).then((response) => {
+    fetch(event.request)
+      .then((response) => {
         if (!response || response.status !== 200) return response;
         const clone = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         return response;
-      });
-    })
+      })
+      .catch(() => caches.match(event.request))
   );
 });
 
