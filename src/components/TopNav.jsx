@@ -1,7 +1,16 @@
 import React from "react";
 import { Burger, Group, Menu, Paper } from "@mantine/core";
 
-export default function TopNav({ baseUrl, accountMenuOpen, setAccountMenuOpen, accountName, accountEmail, onLogOut }) {
+export default function TopNav({
+  baseUrl,
+  accountMenuOpen,
+  setAccountMenuOpen,
+  accountName,
+  accountEmail,
+  colorMode,
+  onToggleColorMode,
+  onLogOut,
+}) {
   return (
     <Paper p="sm" className="top-nav" radius={0}>
       <div className="top-nav-inner">
@@ -30,6 +39,9 @@ export default function TopNav({ baseUrl, accountMenuOpen, setAccountMenuOpen, a
               <Menu.Label>{accountName}</Menu.Label>
               <Menu.Item disabled>{accountEmail}</Menu.Item>
               <Menu.Divider />
+              <Menu.Item onClick={onToggleColorMode}>
+                {colorMode === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              </Menu.Item>
               <Menu.Item
                 color="red"
                 onClick={() => {

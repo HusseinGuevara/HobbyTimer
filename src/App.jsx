@@ -27,6 +27,7 @@ import TotalsCard from "./components/TotalsCard";
 
 const STORAGE_KEY_PREFIX = "hobby-time-tracker-v1";
 const AUTH_ACTIVITY_KEY = "progressxp-auth-last-active-at";
+const THEME_STORAGE_KEY = "progressxp-theme";
 const AUTH_MAX_IDLE_MS = 1000 * 60 * 60 * 24 * 30;
 const MAX_SESSIONS = 25;
 const BASE_URL = import.meta.env.BASE_URL || "/";
@@ -69,6 +70,7 @@ export default function App() {
   const [authUser, setAuthUser] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [colorMode, setColorMode] = useState(() => loadColorMode());
   const [syncReady, setSyncReady] = useState(false);
   const importBackupRef = useRef(null);
   const reminderTickRef = useRef(null);
@@ -78,6 +80,11 @@ export default function App() {
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", colorMode);
+    localStorage.setItem(THEME_STORAGE_KEY, colorMode);
+  }, [colorMode]);
 
   useEffect(() => {
     if (!authUser?.uid) return;
@@ -325,6 +332,10 @@ export default function App() {
 
   function updateTrackedState(updater) {
     setState((prev) => withUpdatedMeta(typeof updater === "function" ? updater(prev) : updater));
+  }
+
+  function toggleColorMode() {
+    setColorMode((prev) => (prev === "dark" ? "light" : "dark"));
   }
 
   function buildCloudInput() {
@@ -776,6 +787,8 @@ export default function App() {
         setAccountMenuOpen={setAccountMenuOpen}
         accountName={accountName}
         accountEmail={accountEmail}
+        colorMode={colorMode}
+        onToggleColorMode={toggleColorMode}
         onLogOut={logOutAccount}
       />
 
@@ -852,6 +865,12 @@ export default function App() {
 
 function getStorageKey(uid) {
   return uid ? `${STORAGE_KEY_PREFIX}:${uid}` : `${STORAGE_KEY_PREFIX}:guest`;
+}
+
+function loadColorMode() {
+  if (typeof window === "undefined") return "light";
+  const saved = localStorage.getItem(THEME_STORAGE_KEY);
+  return saved === "dark" ? "dark" : "light";
 }
 
 function loadState(uid) {
