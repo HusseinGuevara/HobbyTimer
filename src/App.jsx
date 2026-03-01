@@ -1066,11 +1066,11 @@ function buildChartBuckets(sessions, period, hobbyFilter) {
     currentStart = startOfWeek(now);
     count = 12;
     shift = (start, amount) => addDays(start, amount * 7);
-    label = (start) => {
+    label = (start) => `${start.getMonth() + 1}/${start.getDate()}`;
+    sublabel = (start) => {
       const end = addDays(start, 6);
-      return `${start.getMonth() + 1}/${start.getDate()}-${end.getMonth() + 1}/${end.getDate()}`;
+      return `${end.getMonth() + 1}/${end.getDate()}`;
     };
-    sublabel = () => "";
   } else if (period === "monthly") {
     currentStart = startOfMonth(now);
     count = 12;
