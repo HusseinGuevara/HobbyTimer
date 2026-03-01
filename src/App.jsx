@@ -1083,7 +1083,8 @@ function buildChartBuckets(sessions, period, hobbyFilter) {
     currentStart = startOfDay(now);
     count = 14;
     shift = (start, amount) => addDays(start, amount);
-    label = (start) => `${start.getMonth() + 1}/${start.getDate()}`;
+    label = (start) =>
+      `${start.toLocaleString(undefined, { weekday: "short" })} ${start.getMonth() + 1}/${start.getDate()}`;
   }
 
   const buckets = [];
