@@ -794,17 +794,17 @@ export default function App() {
       <Modal
         opened={deleteConfirmOpen}
         onClose={() => setDeleteConfirmOpen(false)}
-        title="Delete hobby"
+        title={deleteTargetHobby ? `Delete "${deleteTargetHobby}"?` : "Delete hobby"}
         centered
         radius="lg"
       >
         <Stack gap="md">
           <Text size="sm">
-            Delete <strong>{deleteTargetHobby || "this hobby"}</strong>?
+            You are about to delete <strong>{deleteTargetHobby || "this hobby"}</strong>.
           </Text>
           <Text size="sm" c="dimmed">
             This removes {deleteTargetSessionCount} session(s) and {formatDuration(deleteTargetTrackedSeconds)} of
-            tracked time for this hobby.
+            tracked time from <strong>{deleteTargetHobby || "this hobby"}</strong>.
           </Text>
           <Group justify="flex-end">
             <Button variant="default" onClick={() => setDeleteConfirmOpen(false)}>
