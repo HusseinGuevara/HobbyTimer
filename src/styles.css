@@ -15,19 +15,19 @@
 }
 
 :root[data-theme="dark"] {
-  --pxp-ink: #ecf4ff;
-  --pxp-muted: #9fb4cf;
-  --pxp-line: rgba(133, 166, 208, 0.24);
-  --pxp-surface: rgba(10, 22, 39, 0.82);
-  --pxp-soft: rgba(15, 28, 48, 0.9);
+  --pxp-ink: #f7fbff;
+  --pxp-muted: #c6d7ee;
+  --pxp-line: rgba(157, 189, 228, 0.34);
+  --pxp-surface: rgba(11, 24, 42, 0.92);
+  --pxp-soft: rgba(18, 34, 57, 0.96);
   --pxp-accent: #4da3ff;
   --pxp-accent-2: #72c1ff;
-  --pxp-body-top: #08121f;
-  --pxp-body-bottom: #0d1b2f;
-  --pxp-glow-left: rgba(77, 163, 255, 0.16);
-  --pxp-glow-right: rgba(62, 125, 201, 0.18);
-  --pxp-input-bg: rgba(14, 27, 45, 0.94);
-  --pxp-dropdown-bg: rgba(9, 19, 34, 0.98);
+  --pxp-body-top: #07111d;
+  --pxp-body-bottom: #10203a;
+  --pxp-glow-left: rgba(77, 163, 255, 0.22);
+  --pxp-glow-right: rgba(62, 125, 201, 0.24);
+  --pxp-input-bg: rgba(17, 32, 54, 0.98);
+  --pxp-dropdown-bg: rgba(12, 24, 42, 0.99);
 }
 
 * {
@@ -351,8 +351,27 @@ body {
   background: linear-gradient(160deg, rgba(16, 30, 50, 0.92), rgba(11, 22, 38, 0.96));
 }
 
+:root[data-theme="dark"] .mantine-Title-root,
+:root[data-theme="dark"] .mantine-Text-root,
+:root[data-theme="dark"] .mantine-Input-label,
+:root[data-theme="dark"] .mantine-Select-label,
+:root[data-theme="dark"] .mantine-NumberInput-label,
+:root[data-theme="dark"] .mantine-Switch-label,
+:root[data-theme="dark"] .mantine-Checkbox-label {
+  color: var(--pxp-ink);
+}
+
+:root[data-theme="dark"] .mantine-Text-root[data-dimmed],
+:root[data-theme="dark"] .mantine-Input-description,
+:root[data-theme="dark"] .mantine-Input-error,
+:root[data-theme="dark"] .mantine-Select-description,
+:root[data-theme="dark"] .mantine-NumberInput-description {
+  color: var(--pxp-muted);
+}
+
 :root[data-theme="dark"] .status-text {
   border-left-color: rgba(114, 193, 255, 0.62);
+  color: var(--pxp-ink);
 }
 
 :root[data-theme="dark"] .auth-switch-link {
@@ -364,8 +383,8 @@ body {
 }
 
 :root[data-theme="dark"] .mantine-Button-root[data-variant="light"] {
-  background: rgba(77, 163, 255, 0.14);
-  color: #cfe7ff;
+  background: rgba(77, 163, 255, 0.2);
+  color: #edf6ff;
 }
 
 :root[data-theme="dark"] .auth-provider-btn {
@@ -384,19 +403,59 @@ body {
 }
 
 :root[data-theme="dark"] .mantine-SegmentedControl-root {
-  background: rgba(160, 189, 226, 0.12);
+  background: rgba(160, 189, 226, 0.18);
+}
+
+:root[data-theme="dark"] .mantine-SegmentedControl-label {
+  color: var(--pxp-muted);
+}
+
+:root[data-theme="dark"] .mantine-SegmentedControl-label[data-active] {
+  color: #06111f;
+  font-weight: 700;
+}
+
+:root[data-theme="dark"] .mantine-TextInput-input,
+:root[data-theme="dark"] .mantine-NumberInput-input,
+:root[data-theme="dark"] .mantine-Select-input,
+:root[data-theme="dark"] .mantine-PasswordInput-input {
+  border-color: rgba(157, 189, 228, 0.34);
+  background: var(--pxp-input-bg);
+  color: var(--pxp-ink);
+}
+
+:root[data-theme="dark"] .mantine-TextInput-input:focus,
+:root[data-theme="dark"] .mantine-NumberInput-input:focus,
+:root[data-theme="dark"] .mantine-Select-input:focus,
+:root[data-theme="dark"] .mantine-PasswordInput-input:focus {
+  border-color: rgba(114, 193, 255, 0.7);
+}
+
+:root[data-theme="dark"] .mantine-Select-dropdown,
+:root[data-theme="dark"] .mantine-Combobox-dropdown,
+:root[data-theme="dark"] .mantine-Menu-dropdown {
+  background: var(--pxp-dropdown-bg);
+  border-color: rgba(157, 189, 228, 0.28);
+}
+
+:root[data-theme="dark"] .mantine-Select-option,
+:root[data-theme="dark"] .mantine-Combobox-option,
+:root[data-theme="dark"] .mantine-Menu-item,
+:root[data-theme="dark"] .mantine-Menu-label {
+  color: var(--pxp-ink);
+}
+
+:root[data-theme="dark"] .mantine-Select-option[data-combobox-selected],
+:root[data-theme="dark"] .mantine-Combobox-option[data-combobox-selected],
+:root[data-theme="dark"] .mantine-Menu-item[data-hovered] {
+  background: rgba(77, 163, 255, 0.2);
 }
 
 :root[data-theme="dark"] .mantine-Input-input::placeholder,
 :root[data-theme="dark"] .mantine-NumberInput-input::placeholder,
-:root[data-theme="dark"] .mantine-Select-input::placeholder {
-  color: rgba(191, 211, 236, 0.62);
-}
-
-:root[data-theme="dark"] .mantine-Menu-dropdown,
-:root[data-theme="dark"] .mantine-Menu-item,
-:root[data-theme="dark"] .mantine-Menu-label {
-  color: var(--pxp-ink);
+:root[data-theme="dark"] .mantine-Select-input::placeholder,
+:root[data-theme="dark"] .mantine-PasswordInput-input::placeholder {
+  color: rgba(214, 228, 248, 0.72);
 }
 
 @media (max-width: 720px) {
