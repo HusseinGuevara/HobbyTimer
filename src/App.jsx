@@ -973,15 +973,11 @@ function getStateLastUpdatedAt(input) {
 
 async function persistUserState(userDoc, state, uid) {
   const payload = getStateLastUpdatedAt(state) > 0 ? state : withUpdatedMeta(state);
-  await setDoc(
-    userDoc,
-    {
-      ownerUid: uid,
-      updatedAt: getStateLastUpdatedAt(payload),
-      data: payload,
-    },
-    { merge: true }
-  );
+  await setDoc(userDoc, {
+    ownerUid: uid,
+    updatedAt: getStateLastUpdatedAt(payload),
+    data: payload,
+  });
 }
 
 function mergeSettings(input) {
