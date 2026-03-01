@@ -1,7 +1,7 @@
 {
-  "name": "Forge Hypertrophy",
-  "short_name": "Forge",
-  "description": "Plan hypertrophy sessions, log sets and reps, and review weekly lifting progress.",
+  "name": "Progress XP",
+  "short_name": "Progress XP",
+  "description": "Track daily practice time for hobbies.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
