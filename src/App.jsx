@@ -904,9 +904,9 @@ function getStorageKey(uid) {
 }
 
 function loadColorMode() {
-  if (typeof window === "undefined") return "light";
+  if (typeof window === "undefined") return "dark";
   const saved = localStorage.getItem(THEME_STORAGE_KEY);
-  return saved === "dark" ? "dark" : "light";
+  return saved === "light" ? "light" : "dark";
 }
 
 function loadState(uid) {

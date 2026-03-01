@@ -27,10 +27,10 @@ export default function AuthScreen({
             <img className="hero-logo" src={`${baseUrl}progressxp-logo.png`} alt="Progress XP logo" />
           </div>
 
-          <Card radius="xl" shadow="sm" withBorder className="glass-card cloud-card">
+          <Card radius="xl" shadow="sm" withBorder className="glass-card cloud-card auth-card">
             <Stack gap="sm">
               <Title order={3}>{isLogin ? "Log In" : "Create Account"}</Title>
-              <Text c="dimmed" size="sm">
+              <Text c="dimmed" size="sm" className="auth-support-text">
                 {isLogin
                   ? "Log in to sync your Progress XP data across devices."
                   : "Create an account to unlock Progress XP and stay logged in across sessions."}
@@ -51,7 +51,7 @@ export default function AuthScreen({
                 />
               </SimpleGrid>
               {!isLogin ? (
-                <Text size="sm" c="dimmed">
+                <Text size="sm" c="dimmed" className="auth-support-text">
                   Password must be at least 8 characters and include an uppercase letter, lowercase letter, and number.
                 </Text>
               ) : null}
@@ -80,7 +80,7 @@ export default function AuthScreen({
                   <Button className="auth-provider-btn" onClick={onSignUp}>Create Account</Button>
                 )}
               </Group>
-              <Text size="sm" c="dimmed">
+              <Text size="sm" c="dimmed" className="auth-support-text">
                 {isLogin ? "Need an account?" : "Already have an account?"}{" "}
                 <button
                   type="button"
@@ -91,14 +91,14 @@ export default function AuthScreen({
                 </button>
               </Text>
               {!hasFirebaseConfigured ? (
-                <Text size="sm" c="dimmed">
+                <Text size="sm" c="dimmed" className="auth-support-text">
                   Login is not available yet. Firebase sign-in providers must be enabled.
                 </Text>
               ) : null}
               {hasFirebaseConfigured && !authChecked ? (
-                <Text size="sm" c="dimmed">Checking saved session...</Text>
+                <Text size="sm" c="dimmed" className="auth-support-text">Checking saved session...</Text>
               ) : null}
-              {authStatus ? <Text size="sm" c="blue" className="status-text">{authStatus}</Text> : null}
+              {authStatus ? <Text size="sm" c="blue" className="status-text auth-status-text">{authStatus}</Text> : null}
             </Stack>
           </Card>
         </Stack>

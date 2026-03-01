@@ -106,6 +106,18 @@ body {
   padding: 0.25rem 0 0.15rem;
 }
 
+.auth-card .mantine-Title-root {
+  color: var(--pxp-ink);
+}
+
+.auth-support-text {
+  color: var(--pxp-muted);
+}
+
+.auth-status-text {
+  color: #0b5cae;
+}
+
 .top-nav {
   width: 100%;
   border: 0;
@@ -376,6 +388,18 @@ body {
 
 :root[data-theme="dark"] .auth-switch-link {
   color: #72c1ff;
+}
+
+:root[data-theme="dark"] .auth-card {
+  border-color: rgba(157, 189, 228, 0.32);
+}
+
+:root[data-theme="dark"] .auth-support-text {
+  color: #d2e1f4;
+}
+
+:root[data-theme="dark"] .auth-status-text {
+  color: #beddff;
 }
 
 :root[data-theme="dark"] .mantine-Card-root[data-with-border="true"] {
