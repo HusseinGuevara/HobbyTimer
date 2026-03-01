@@ -202,6 +202,23 @@ body {
   justify-items: center;
 }
 
+.chart-label {
+  min-height: 2rem;
+  display: grid;
+  gap: 0.08rem;
+  justify-items: center;
+}
+
+.chart-label-primary {
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.chart-label-secondary {
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
 .chart-bar {
   width: 100%;
   max-width: 56px;

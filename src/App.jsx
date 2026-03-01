@@ -1060,6 +1060,7 @@ function buildChartBuckets(sessions, period, hobbyFilter) {
   let count;
   let shift;
   let label;
+  let sublabel;
 
   if (period === "weekly") {
     currentStart = startOfWeek(now);
@@ -1069,22 +1070,25 @@ function buildChartBuckets(sessions, period, hobbyFilter) {
       const end = addDays(start, 6);
       return `${start.getMonth() + 1}/${start.getDate()}-${end.getMonth() + 1}/${end.getDate()}`;
     };
+    sublabel = () => "";
   } else if (period === "monthly") {
     currentStart = startOfMonth(now);
     count = 12;
     shift = (start, amount) => addMonths(start, amount);
     label = (start) => start.toLocaleString(undefined, { month: "short" });
+    sublabel = () => "";
   } else if (period === "yearly") {
     currentStart = startOfYear(now);
     count = 5;
     shift = (start, amount) => addYears(start, amount);
     label = (start) => String(start.getFullYear());
+    sublabel = () => "";
   } else {
     currentStart = startOfDay(now);
     count = 14;
     shift = (start, amount) => addDays(start, amount);
-    label = (start) =>
-      `${start.toLocaleString(undefined, { weekday: "short" })} ${start.getMonth() + 1}/${start.getDate()}`;
+    label = (start) => start.toLocaleString(undefined, { weekday: "short" }).toUpperCase();
+    sublabel = (start) => `${start.getMonth() + 1}/${start.getDate()}`;
   }
 
   const buckets = [];
@@ -1096,6 +1100,7 @@ function buildChartBuckets(sessions, period, hobbyFilter) {
       start,
       end,
       label: label(start),
+      sublabel: sublabel(start),
       seconds: 0,
     });
   }

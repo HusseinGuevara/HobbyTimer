@@ -46,9 +46,16 @@ export default function ChartsCard({
                   {formatChartTime(bucket.seconds)}
                 </Text>
                 <div className="chart-bar" style={{ height: `${barHeight}px` }} title={formatDuration(bucket.seconds)} />
-                <Text size="xs" fw={700}>
-                  {bucket.label}
-                </Text>
+                <div className="chart-label">
+                  <Text size="xs" fw={700} className="chart-label-primary">
+                    {bucket.label}
+                  </Text>
+                  {bucket.sublabel ? (
+                    <Text size="xs" c="dimmed" className="chart-label-secondary">
+                      {bucket.sublabel}
+                    </Text>
+                  ) : null}
+                </div>
               </div>
             );
           })}
