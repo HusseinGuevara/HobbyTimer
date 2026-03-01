@@ -15,7 +15,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { doc, getDoc, getFirestore, onSnapshot, setDoc } from "firebase/firestore";
-import { Container, SimpleGrid, Stack } from "@mantine/core";
+import { Button, Container, Group, Modal, SimpleGrid, Stack, Text } from "@mantine/core";
 import AuthScreen from "./components/AuthScreen";
 import ChartsCard from "./components/ChartsCard";
 import GoalsCard from "./components/GoalsCard";
@@ -72,6 +72,7 @@ export default function App() {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [colorMode, setColorMode] = useState(() => loadColorMode());
   const [syncReady, setSyncReady] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const importBackupRef = useRef(null);
   const reminderTickRef = useRef(null);
   const stateRef = useRef(state);
@@ -318,6 +319,11 @@ export default function App() {
     () => [{ value: "__all__", label: "All Hobbies" }, ...hobbyOptions],
     [hobbyOptions]
   );
+  const deleteTargetHobby = state.selectedHobby;
+  const deleteTargetSessionCount = deleteTargetHobby
+    ? state.sessions.filter((session) => session.hobby === deleteTargetHobby).length
+    : 0;
+  const deleteTargetTrackedSeconds = deleteTargetHobby ? state.totals[deleteTargetHobby] || 0 : 0;
   const accountName = useMemo(() => {
     if (!authUser) return "Account";
     if (typeof authUser.displayName === "string" && authUser.displayName.trim()) {
@@ -379,13 +385,15 @@ export default function App() {
       return;
     }
 
-    const sessionCount = state.sessions.filter((session) => session.hobby === hobby).length;
-    const trackedSeconds = state.totals[hobby] || 0;
-    const warning = `Delete "${hobby}"?\n\nThis will remove ${sessionCount} session(s) and ${formatDuration(
-      trackedSeconds
-    )} of tracked time for this hobby.`;
-    const confirmed = window.confirm(warning);
-    if (!confirmed) return;
+    setDeleteConfirmOpen(true);
+  }
+
+  function confirmDeleteSelectedHobby() {
+    const hobby = state.selectedHobby;
+    if (!hobby) {
+      setDeleteConfirmOpen(false);
+      return;
+    }
 
     updateTrackedState((prev) => {
       const nextHobbies = prev.hobbies.filter((item) => item !== hobby);
@@ -404,6 +412,8 @@ export default function App() {
     if (chartHobby === hobby) {
       setChartHobby("__all__");
     }
+
+    setDeleteConfirmOpen(false);
   }
 
   function startSession() {
@@ -781,6 +791,32 @@ export default function App() {
 
   return (
     <div className="app-bg">
+      <Modal
+        opened={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        title="Delete hobby"
+        centered
+        radius="lg"
+      >
+        <Stack gap="md">
+          <Text size="sm">
+            Delete <strong>{deleteTargetHobby || "this hobby"}</strong>?
+          </Text>
+          <Text size="sm" c="dimmed">
+            This removes {deleteTargetSessionCount} session(s) and {formatDuration(deleteTargetTrackedSeconds)} of
+            tracked time for this hobby.
+          </Text>
+          <Group justify="flex-end">
+            <Button variant="default" onClick={() => setDeleteConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button color="red" onClick={confirmDeleteSelectedHobby}>
+              Delete Hobby
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
       <TopNav
         baseUrl={BASE_URL}
         accountMenuOpen={accountMenuOpen}
