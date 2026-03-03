@@ -8,7 +8,9 @@ export default function TopNav({
   accountName,
   accountEmail,
   colorMode,
+  keepAwakeEnabled,
   onToggleColorMode,
+  onToggleKeepAwake,
   onLogOut,
 }) {
   return (
@@ -41,6 +43,9 @@ export default function TopNav({
               <Menu.Divider />
               <Menu.Item onClick={onToggleColorMode}>
                 {colorMode === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              </Menu.Item>
+              <Menu.Item onClick={onToggleKeepAwake}>
+                {keepAwakeEnabled ? "Turn Off Keep Screen Awake" : "Turn On Keep Screen Awake"}
               </Menu.Item>
               <Menu.Item
                 color="red"

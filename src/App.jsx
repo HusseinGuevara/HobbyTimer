@@ -45,6 +45,7 @@ const DEFAULT_SETTINGS = {
   weeklyGoalMinutes: 180,
   reminderTime: "19:00",
   reminderEnabled: false,
+  keepAwakeEnabled: true,
   cloud: {
     enabled: false,
     syncId: "",
@@ -143,7 +144,7 @@ export default function App() {
   }, [chartHobby, state.hobbies]);
 
   useEffect(() => {
-    const shouldKeepAwake = Boolean(activeSession && !activeSession.pausedAt);
+    const shouldKeepAwake = Boolean(activeSession && !activeSession.pausedAt && state.settings.keepAwakeEnabled);
 
     if (!shouldKeepAwake) {
       setWakeLockStatus("");
@@ -237,7 +238,7 @@ export default function App() {
       }
       releaseWakeLock();
     };
-  }, [activeSession]);
+  }, [activeSession, state.settings.keepAwakeEnabled]);
 
   useEffect(() => {
     if (!state.settings.reminderEnabled) {
@@ -699,6 +700,16 @@ export default function App() {
     setBackupStatus(enabled ? "Daily reminders enabled." : "Daily reminders disabled.");
   }
 
+  function toggleKeepAwake() {
+    updateTrackedState((prev) => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        keepAwakeEnabled: !prev.settings.keepAwakeEnabled,
+      },
+    }));
+  }
+
   function saveReminderTime() {
     if (!/^\d{2}:\d{2}$/.test(reminderTimeInput)) {
       setBackupStatus("Enter a valid reminder time.");
@@ -938,7 +949,9 @@ export default function App() {
         accountName={accountName}
         accountEmail={accountEmail}
         colorMode={colorMode}
+        keepAwakeEnabled={state.settings.keepAwakeEnabled}
         onToggleColorMode={toggleColorMode}
+        onToggleKeepAwake={toggleKeepAwake}
         onLogOut={logOutAccount}
       />
 
@@ -1178,6 +1191,8 @@ function mergeSettings(input) {
     weeklyGoalMinutes: clampInt(source.weeklyGoalMinutes, 1, 10080, DEFAULT_SETTINGS.weeklyGoalMinutes),
     reminderTime: isValidTime(source.reminderTime) ? source.reminderTime : DEFAULT_SETTINGS.reminderTime,
     reminderEnabled: Boolean(source.reminderEnabled),
+    keepAwakeEnabled:
+      typeof source.keepAwakeEnabled === "boolean" ? source.keepAwakeEnabled : DEFAULT_SETTINGS.keepAwakeEnabled,
     cloud: {
       enabled: Boolean(cloudSource.enabled),
       syncId: typeof cloudSource.syncId === "string" ? cloudSource.syncId : "",
