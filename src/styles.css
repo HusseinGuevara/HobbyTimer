@@ -177,6 +177,10 @@ body {
   letter-spacing: 0.035em;
 }
 
+.wake-lock-status {
+  margin-top: 0.35rem;
+}
+
 .chart-wrap {
   display: grid;
   align-items: end;

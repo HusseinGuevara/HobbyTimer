@@ -7,6 +7,7 @@ export default function SessionCard({
   activeSession,
   newHobby,
   sessionSeconds,
+  wakeLockStatus,
   hobbyCount,
   onSelectHobby,
   onNewHobbyChange,
@@ -65,6 +66,11 @@ export default function SessionCard({
           {activeSession?.pausedAt ? (
             <Text size="sm" c="orange" fw={700}>
               Paused
+            </Text>
+          ) : null}
+          {wakeLockStatus ? (
+            <Text size="sm" c="dimmed" className="wake-lock-status">
+              {wakeLockStatus}
             </Text>
           ) : null}
         </Paper>

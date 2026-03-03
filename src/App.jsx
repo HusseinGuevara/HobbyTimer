@@ -74,10 +74,12 @@ export default function App() {
   const [colorMode, setColorMode] = useState(() => loadColorMode());
   const [syncReady, setSyncReady] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [wakeLockStatus, setWakeLockStatus] = useState("");
   const importBackupRef = useRef(null);
   const reminderTickRef = useRef(null);
   const stateRef = useRef(state);
   const applyingRemoteSyncRef = useRef(0);
+  const wakeLockRef = useRef(null);
 
   useEffect(() => {
     stateRef.current = state;
@@ -139,6 +141,103 @@ export default function App() {
     if (chartHobby === "__all__" || state.hobbies.includes(chartHobby)) return;
     setChartHobby("__all__");
   }, [chartHobby, state.hobbies]);
+
+  useEffect(() => {
+    const shouldKeepAwake = Boolean(activeSession && !activeSession.pausedAt);
+
+    if (!shouldKeepAwake) {
+      setWakeLockStatus("");
+    }
+
+    if (typeof document === "undefined" || typeof navigator === "undefined") {
+      return undefined;
+    }
+
+    let disposed = false;
+    let currentSentinel = null;
+
+    const releaseWakeLock = async () => {
+      const sentinel = wakeLockRef.current;
+      wakeLockRef.current = null;
+      currentSentinel = null;
+      if (!sentinel) return;
+      try {
+        await sentinel.release();
+      } catch {
+        // Ignore wake lock release failures.
+      }
+    };
+
+    const requestWakeLock = async () => {
+      if (!shouldKeepAwake || disposed) return;
+
+      if (!("wakeLock" in navigator)) {
+        setWakeLockStatus("Keep-awake mode is not supported on this browser.");
+        return;
+      }
+
+      if (document.visibilityState !== "visible") return;
+      if (wakeLockRef.current && !wakeLockRef.current.released) {
+        setWakeLockStatus("Keeping your screen awake while the timer runs.");
+        return;
+      }
+
+      try {
+        const sentinel = await navigator.wakeLock.request("screen");
+        if (disposed) {
+          try {
+            await sentinel.release();
+          } catch {
+            // Ignore cleanup failures for a late wake lock.
+          }
+          return;
+        }
+
+        currentSentinel = sentinel;
+        wakeLockRef.current = sentinel;
+        setWakeLockStatus("Keeping your screen awake while the timer runs.");
+
+        sentinel.addEventListener("release", () => {
+          if (wakeLockRef.current === sentinel) {
+            wakeLockRef.current = null;
+          }
+
+          if (!disposed && shouldKeepAwake && document.visibilityState === "visible") {
+            setWakeLockStatus("Reconnecting keep-awake mode...");
+            requestWakeLock();
+          }
+        });
+      } catch {
+        if (!disposed) {
+          setWakeLockStatus("Keep-awake mode is unavailable right now.");
+        }
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (!shouldKeepAwake) return;
+      if (document.visibilityState === "visible") {
+        requestWakeLock();
+      }
+    };
+
+    if (shouldKeepAwake) {
+      requestWakeLock();
+    } else {
+      releaseWakeLock();
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      disposed = true;
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (currentSentinel) {
+        currentSentinel = null;
+      }
+      releaseWakeLock();
+    };
+  }, [activeSession]);
 
   useEffect(() => {
     if (!state.settings.reminderEnabled) {
@@ -852,6 +951,7 @@ export default function App() {
               activeSession={activeSession}
               newHobby={newHobby}
               sessionSeconds={sessionSeconds}
+              wakeLockStatus={wakeLockStatus}
               hobbyCount={state.hobbies.length}
               onSelectHobby={(value) => {
                 if (!value) return;
