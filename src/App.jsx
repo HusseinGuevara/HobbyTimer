@@ -26,6 +26,7 @@ import TopNav from "./components/TopNav";
 import TotalsCard from "./components/TotalsCard";
 
 const STORAGE_KEY_PREFIX = "hobby-time-tracker-v1";
+const ACTIVE_SESSION_STORAGE_KEY_PREFIX = "progressxp-active-session-v1";
 const AUTH_ACTIVITY_KEY = "progressxp-auth-last-active-at";
 const THEME_STORAGE_KEY = "progressxp-theme";
 const AUTH_MAX_IDLE_MS = 1000 * 60 * 60 * 24 * 30;
@@ -91,6 +92,18 @@ export default function App() {
     if (!authUser?.uid) return;
     localStorage.setItem(getStorageKey(authUser.uid), JSON.stringify(state));
   }, [authUser, state]);
+
+  useEffect(() => {
+    const uid = authUser?.uid;
+    const storageKey = getActiveSessionStorageKey(uid);
+
+    if (!activeSession) {
+      localStorage.removeItem(storageKey);
+      return;
+    }
+
+    localStorage.setItem(storageKey, JSON.stringify(activeSession));
+  }, [activeSession, authUser?.uid]);
 
   useEffect(() => {
     setDailyGoalInput(String(state.settings.dailyGoalMinutes));
@@ -194,10 +207,12 @@ export default function App() {
 
     if (!authUser?.uid) {
       setState(prepareState(loadState()));
+      setActiveSession(loadActiveSession());
       return;
     }
 
     setState(prepareState(loadState(authUser.uid)));
+    setActiveSession(loadActiveSession(authUser.uid));
   }, [authUser?.uid]);
 
   useEffect(() => {
@@ -903,6 +918,10 @@ function getStorageKey(uid) {
   return uid ? `${STORAGE_KEY_PREFIX}:${uid}` : `${STORAGE_KEY_PREFIX}:guest`;
 }
 
+function getActiveSessionStorageKey(uid) {
+  return uid ? `${ACTIVE_SESSION_STORAGE_KEY_PREFIX}:${uid}` : `${ACTIVE_SESSION_STORAGE_KEY_PREFIX}:guest`;
+}
+
 function loadColorMode() {
   if (typeof window === "undefined") return "dark";
   const saved = localStorage.getItem(THEME_STORAGE_KEY);
@@ -916,6 +935,16 @@ function loadState(uid) {
     return JSON.parse(raw);
   } catch {
     return { hobbies: [], selectedHobby: "", totals: {}, sessions: [], settings: DEFAULT_SETTINGS };
+  }
+}
+
+function loadActiveSession(uid) {
+  try {
+    const raw = localStorage.getItem(getActiveSessionStorageKey(uid));
+    if (!raw) return null;
+    return prepareActiveSession(JSON.parse(raw));
+  } catch {
+    return null;
   }
 }
 
@@ -984,6 +1013,28 @@ function prepareState(input) {
     meta: {
       lastUpdatedAt: Number.isFinite(lastUpdatedAt) ? lastUpdatedAt : 0,
     },
+  };
+}
+
+function prepareActiveSession(input) {
+  if (!input || typeof input !== "object") return null;
+
+  const hobby = typeof input.hobby === "string" ? input.hobby.trim() : "";
+  const sessionStartedAt = Number(input.sessionStartedAt);
+  const runStartedAt = Number(input.runStartedAt);
+  const accumulatedSeconds = Math.max(0, Math.floor(Number(input.accumulatedSeconds) || 0));
+  const pausedAt = input.pausedAt == null ? null : Number(input.pausedAt);
+
+  if (!hobby || !Number.isFinite(sessionStartedAt) || !Number.isFinite(runStartedAt)) {
+    return null;
+  }
+
+  return {
+    hobby,
+    sessionStartedAt,
+    runStartedAt,
+    accumulatedSeconds,
+    pausedAt: Number.isFinite(pausedAt) ? pausedAt : null,
   };
 }
 
